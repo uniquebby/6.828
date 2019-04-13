@@ -129,6 +129,7 @@ FL_VM	inc/mmu.h	/^#define FL_VM	/;"	d
 FL_ZF	inc/mmu.h	/^#define FL_ZF	/;"	d
 GCCPREFIX	GNUmakefile	/^GCCPREFIX := $(shell if i386-jos-elf-objdump -i 2>&1 | grep '^elf32-i386$$' >\/dev\/null 2>&1; \\$/;"	m
 GCC_LIB	GNUmakefile	/^GCC_LIB := $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)$/;"	m
+GDB	GNUmakefile	/^GDB	:= $(GCCPREFIX)gdb$/;"	m
 GDBClient	gradelib.py	/^class GDBClient(object):$/;"	c
 GDBPORT	GNUmakefile	/^GDBPORT	:= $(shell expr `id -u` % 5000 + 25000)$/;"	m
 GD_KD	inc/memlayout.h	/^#define GD_KD /;"	d
@@ -222,7 +223,7 @@ KSTKGAP	inc/memlayout.h	/^#define KSTKGAP	/;"	d
 KSTKSIZE	inc/memlayout.h	/^#define KSTKSIZE	/;"	d
 K_LDCMDBYTE	inc/kbdreg.h	/^#define	K_LDCMDBYTE	/;"	d
 K_RDCMDBYTE	inc/kbdreg.h	/^#define	K_RDCMDBYTE	/;"	d
-LAB	conf/lab.mk	/^LAB=1$/;"	m
+LAB	conf/lab.mk	/^LAB=2$/;"	m
 LABSETUP	GNUmakefile	/^LABSETUP ?= .\/$/;"	m
 LD	GNUmakefile	/^LD	:= $(GCCPREFIX)ld$/;"	m
 LDFLAGS	GNUmakefile	/^LDFLAGS := -m elf_i386$/;"	m
@@ -276,7 +277,7 @@ OBJCOPY	GNUmakefile	/^OBJCOPY	:= $(GCCPREFIX)objcopy$/;"	m
 OBJDIR	GNUmakefile	/^OBJDIR := obj$/;"	m
 OBJDIRS	GNUmakefile	/^OBJDIRS :=$/;"	m
 OBJDUMP	GNUmakefile	/^OBJDUMP	:= $(GCCPREFIX)objdump$/;"	m
-PACKAGEDATE	conf/lab.mk	/^PACKAGEDATE=Thu Aug 30 15:16:04 EDT 2018$/;"	m
+PACKAGEDATE	conf/lab.mk	/^PACKAGEDATE=Wed Sep 12 14:51:29 EDT 2018$/;"	m
 PART_TOTAL	gradelib.py	/^PART_TOTAL = PART_POSSIBLE = 0$/;"	v
 PDX	inc/mmu.h	/^#define PDX(/;"	d
 PDXSHIFT	inc/mmu.h	/^#define PDXSHIFT	/;"	d
@@ -305,6 +306,7 @@ PTSHIFT	inc/mmu.h	/^#define PTSHIFT	/;"	d
 PTSIZE	inc/mmu.h	/^#define PTSIZE	/;"	d
 PTX	inc/mmu.h	/^#define PTX(/;"	d
 PTXSHIFT	inc/mmu.h	/^#define PTXSHIFT	/;"	d
+PageInfo	inc/memlayout.h	/^struct PageInfo {$/;"	s
 Proghdr	inc/elf.h	/^struct Proghdr {$/;"	s
 Pseudodesc	inc/mmu.h	/^struct Pseudodesc {$/;"	s
 QEMU	GNUmakefile	/^QEMU := $(shell if which qemu >\/dev\/null 2>&1; \\$/;"	m
@@ -407,6 +409,8 @@ assert_lines_match_kw	gradelib.py	/^    def assert_lines_match_kw(no=[]):$/;"	f	
 base	obj/kern/kernel.asm	/^			base = 10;$/;"	d
 base	obj/kern/kernel.asm	/^			base = 16;$/;"	d
 base	obj/kern/kernel.asm	/^		base = 10;$/;"	d
+boot_alloc	kern/pmap.c	/^boot_alloc(uint32_t n)$/;"	f	typeref:typename:void *	file:
+boot_map_region	kern/pmap.c	/^boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm)$/;"	f	typeref:typename:void	file:
 bootmain	boot/main.c	/^bootmain(void)$/;"	f	typeref:typename:void
 bootstack	kern/entry.S	/^bootstack:$/;"	l
 bootstacktop	kern/entry.S	/^bootstacktop:$/;"	l
@@ -426,6 +430,12 @@ cga_putc	kern/console.c	/^cga_putc(int c)$/;"	f	typeref:typename:void	file:
 ch	obj/kern/kernel.asm	/^				ch = *fmt;$/;"	d
 char	obj/kern/kernel.asm	/^char *$/;"	l
 charcode	kern/console.c	/^static uint8_t *charcode[4] = {$/;"	v	typeref:typename:uint8_t * [4]	file:
+check_kern_pgdir	kern/pmap.c	/^check_kern_pgdir(void)$/;"	f	typeref:typename:void	file:
+check_page	kern/pmap.c	/^check_page(void)$/;"	f	typeref:typename:void	file:
+check_page_alloc	kern/pmap.c	/^check_page_alloc(void)$/;"	f	typeref:typename:void	file:
+check_page_free_list	kern/pmap.c	/^check_page_free_list(bool only_low_memory)$/;"	f	typeref:typename:void	file:
+check_page_installed_pgdir	kern/pmap.c	/^check_page_installed_pgdir(void)$/;"	f	typeref:typename:void	file:
+check_va2pa	kern/pmap.c	/^check_va2pa(pde_t *pgdir, uintptr_t va)$/;"	f	typeref:typename:physaddr_t	file:
 clean	GNUmakefile	/^clean:$/;"	t
 close	gradelib.py	/^    def close(self):$/;"	m	class:GDBClient
 cnt	lib/printfmt.c	/^	int cnt;$/;"	m	struct:sprintbuf	typeref:typename:int	file:
@@ -2935,6 +2945,7 @@ handle_read	gradelib.py	/^    def handle_read(self):$/;"	m	class:GDBClient
 handle_read	gradelib.py	/^    def handle_read(self):$/;"	m	class:QEMU
 hook-stop	.gdbinit	/^define hook-stop$/;"	d
 i	obj/kern/kernel.asm	/^	i = 0;$/;"	d
+i386_detect_memory	kern/pmap.c	/^i386_detect_memory(void)$/;"	f	typeref:typename:void	file:
 i386_init	kern/init.c	/^i386_init(void)$/;"	f	typeref:typename:void
 inb	inc/x86.h	/^inb(int port)$/;"	f	typeref:typename:uint8_t
 inl	inc/x86.h	/^inl(int port)$/;"	f	typeref:typename:uint32_t
@@ -2953,6 +2964,7 @@ iscons	kern/console.c	/^iscons(int fdnum)$/;"	f	typeref:typename:int
 kbd_init	kern/console.c	/^kbd_init(void)$/;"	f	typeref:typename:void	file:
 kbd_intr	kern/console.c	/^kbd_intr(void)$/;"	f	typeref:typename:void
 kbd_proc_data	kern/console.c	/^kbd_proc_data(void)$/;"	f	typeref:typename:int	file:
+kern_pgdir	kern/pmap.c	/^pde_t *kern_pgdir;		\/\/ Kernel's initial page directory$/;"	v	typeref:typename:pde_t *
 kill	gradelib.py	/^    def kill(self):$/;"	m	class:QEMU
 l	obj/kern/kernel.asm	/^			l = m;$/;"	d
 l	obj/kern/kernel.asm	/^			l = true_m + 1;$/;"	d
@@ -2973,6 +2985,7 @@ ltr	inc/x86.h	/^ltr(uint16_t sel)$/;"	f	typeref:typename:void
 make	gradelib.py	/^def make(*target):$/;"	f
 match	gradelib.py	/^    def match(self, *args, **kwargs):$/;"	m	class:Runner
 maybe_unlink	gradelib.py	/^def maybe_unlink(*paths):$/;"	f
+mem_init	kern/pmap.c	/^mem_init(void)$/;"	f	typeref:typename:void
 memcmp	lib/string.c	/^memcmp(const void *v1, const void *v2, size_t n)$/;"	f	typeref:typename:int
 memcpy	lib/string.c	/^memcpy(void *dst, const void *src, size_t n)$/;"	f	typeref:typename:void *
 memfind	lib/string.c	/^memfind(const void *s, int c, size_t n)$/;"	f	typeref:typename:void *
@@ -2991,8 +3004,11 @@ n_type	inc/stab.h	/^	uint8_t n_type;         \/\/ type of symbol$/;"	m	struct:St
 n_value	inc/stab.h	/^	uintptr_t n_value;	\/\/ value of symbol$/;"	m	struct:Stab	typeref:typename:uintptr_t
 name	kern/monitor.c	/^	const char *name;$/;"	m	struct:Command	typeref:typename:const char *	file:
 normalmap	kern/console.c	/^static uint8_t normalmap[256] =$/;"	v	typeref:typename:uint8_t[256]	file:
+npages	kern/pmap.c	/^size_t npages;			\/\/ Amount of physical memory (in pages)$/;"	v	typeref:typename:size_t
+npages_basemem	kern/pmap.c	/^static size_t npages_basemem;	\/\/ Amount of base memory (in pages)$/;"	v	typeref:typename:size_t	file:
 num	obj/kern/kernel.asm	/^				num = -(long long) num;$/;"	d
 num	obj/kern/kernel.asm	/^			num = (unsigned long long)$/;"	d
+nvram_read	kern/pmap.c	/^nvram_read(int r)$/;"	f	typeref:typename:int	file:
 off_t	inc/types.h	/^typedef int32_t off_t;$/;"	t	typeref:typename:int32_t
 offset	obj/boot/boot.asm	/^	offset = (offset \/ SECTSIZE) + 1;$/;"	d
 offsetof	inc/types.h	/^#define offsetof(/;"	d
@@ -3014,16 +3030,28 @@ p_va	inc/elf.h	/^	uint32_t p_va;$/;"	m	struct:Proghdr	typeref:typename:uint32_t
 padc	obj/kern/kernel.asm	/^			padc = '-';$/;"	d
 padc	obj/kern/kernel.asm	/^			padc = '0';$/;"	d
 padc	obj/kern/kernel.asm	/^		padc = ' ';$/;"	d
+page_alloc	kern/pmap.c	/^page_alloc(int alloc_flags)$/;"	f	typeref:struct:PageInfo *
+page_decref	kern/pmap.c	/^page_decref(struct PageInfo* pp)$/;"	f	typeref:typename:void
+page_free	kern/pmap.c	/^page_free(struct PageInfo *pp)$/;"	f	typeref:typename:void
+page_free_list	kern/pmap.c	/^static struct PageInfo *page_free_list;	\/\/ Free list of physical pages$/;"	v	typeref:struct:PageInfo *	file:
+page_init	kern/pmap.c	/^page_init(void)$/;"	f	typeref:typename:void
+page_insert	kern/pmap.c	/^page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)$/;"	f	typeref:typename:int
+page_lookup	kern/pmap.c	/^page_lookup(pde_t *pgdir, void *va, pte_t **pte_store)$/;"	f	typeref:struct:PageInfo *
+page_remove	kern/pmap.c	/^page_remove(pde_t *pgdir, void *va)$/;"	f	typeref:typename:void
+pages	kern/pmap.c	/^struct PageInfo *pages;		\/\/ Physical page state array$/;"	v	typeref:struct:PageInfo *
 panic	inc/assert.h	/^#define panic(/;"	d
 panicstr	kern/init.c	/^const char *panicstr;$/;"	v	typeref:typename:const char *
 panicstr	obj/kern/kernel.asm	/^	panicstr = fmt;$/;"	d
 pd_base	inc/mmu.h	/^	uint32_t pd_base;		\/\/ Base address$/;"	m	struct:Pseudodesc	typeref:typename:uint32_t
 pd_lim	inc/mmu.h	/^	uint16_t pd_lim;		\/\/ Limit$/;"	m	struct:Pseudodesc	typeref:typename:uint16_t
 pde_t	inc/memlayout.h	/^typedef uint32_t pde_t;$/;"	t	typeref:typename:uint32_t
+pgdir_walk	kern/pmap.c	/^pgdir_walk(pde_t *pgdir, const void *va, int create)$/;"	f	typeref:typename:pte_t *
 ph	obj/boot/boot.asm	/^	ph = (struct Proghdr *) ((uint8_t *) ELFHDR + ELFHDR->e_phoff);$/;"	d
 physaddr_t	inc/types.h	/^typedef uint32_t physaddr_t;$/;"	t	typeref:typename:uint32_t
 pos	obj/kern/kernel.asm	/^	pos = inb(addr_6845 + 1) << 8;$/;"	d
 post_make	gradelib.py	/^def post_make():$/;"	f
+pp_link	inc/memlayout.h	/^	struct PageInfo *pp_link;$/;"	m	struct:PageInfo	typeref:struct:PageInfo *
+pp_ref	inc/memlayout.h	/^	uint16_t pp_ref;$/;"	m	struct:PageInfo	typeref:typename:uint16_t
 ppn_t	inc/types.h	/^typedef uint32_t ppn_t;$/;"	t	typeref:typename:uint32_t
 pre-qemu	GNUmakefile	/^pre-qemu: .gdbinit$/;"	t
 pre_make	gradelib.py	/^def pre_make():$/;"	f
@@ -3158,6 +3186,7 @@ test_backtrace_lines	grade-lab1	/^def test_backtrace_lines():$/;"	f
 test_backtrace_symbols	grade-lab1	/^def test_backtrace_symbols():$/;"	f
 test_jos	grade-lab1	/^def test_jos():$/;"	f
 test_printf	grade-lab1	/^def test_printf():$/;"	f
+tlb_invalidate	kern/pmap.c	/^tlb_invalidate(pde_t *pgdir, void *va)$/;"	f	typeref:typename:void
 tlbflush	inc/x86.h	/^tlbflush(void)$/;"	f	typeref:typename:void
 togglecode	kern/console.c	/^static uint8_t togglecode[256] =$/;"	v	typeref:typename:uint8_t[256]	file:
 ts_cr3	inc/mmu.h	/^	physaddr_t ts_cr3;	\/\/ Page directory base$/;"	m	struct:Taskstate	typeref:typename:physaddr_t
