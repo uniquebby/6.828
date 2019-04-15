@@ -4300,7 +4300,6 @@ strnlen	lib/string.c	/^strnlen(const char *s, size_t size)$/;"	f	typeref:typenam
 strtol	lib/string.c	/^strtol(const char *s, char **endptr, int base)$/;"	f	typeref:typename:long
 tarball-pref	GNUmakefile	/^tarball-pref: handin-check$/;"	t
 test	gradelib.py	/^def test(points, title=None, parent=None):$/;"	f
-test_backtrace	kern/init.c	/^test_backtrace(int x)$/;"	f	typeref:typename:void
 test_backtrace_arguments	grade-lab1	/^def test_backtrace_arguments():$/;"	f
 test_backtrace_count	grade-lab1	/^def test_backtrace_count():$/;"	f
 test_backtrace_lines	grade-lab1	/^def test_backtrace_lines():$/;"	f

@@ -8,6 +8,10 @@
 #include <kern/console.h>
 #include <kern/pmap.h>
 #include <kern/kclock.h>
+
+#include <kern/env.h>
+#include <kern/trap.h>
+/*
 // Test the stack backtrace function (lab 1 only)
 void
 test_backtrace(int x)
@@ -19,6 +23,7 @@ test_backtrace(int x)
 		mon_backtrace(0, 0, 0);
 	cprintf("leaving test_backtrace %d\n", x);
 }
+*/
 
 
 void
@@ -42,9 +47,20 @@ i386_init(void)
 	// Lab 2 memory management initialization functions
 	mem_init();
 
-	// Drop into the kernel monitor.
-	while (1)
-		monitor(NULL);
+	// Lab 3 user environment initialization functions
+	env_init();
+	trap_init();
+
+#if defined(TEST)
+	// Don't touch -- used by grading script!
+	ENV_CREATE(TEST, ENV_TYPE_USER);
+#else
+	// Touch all you want.
+	ENV_CREATE(user_hello, ENV_TYPE_USER);
+#endif // TEST*
+
+	// We only have one user environment for now, so just run it.
+	env_run(&envs[0]);
 }
 
 
