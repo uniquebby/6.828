@@ -95,7 +95,13 @@ boot_alloc(uint32_t n)
 	// to any kernel code or global variables.
 	if (!nextfree) {
 		extern char end[];
-		nextfree = ROUNDUP((char *) end, PGSIZE);
+		//extern char edata[];
+		//cprintf("end:%p\n", end);
+		//cprintf("end+16:%p\n", end+16);
+		//cprintf("edata:%p\n", edata);
+		//加16是因为.bss段的实际长度比end多出16个字节，原因未知。
+		nextfree = ROUNDUP((char *) end + 16, PGSIZE);		
+		//cprintf("nextfree:%p\n", nextfree);
 	}
 
 	// Allocate a chunk large enough to hold 'n' bytes, then update
@@ -103,6 +109,7 @@ boot_alloc(uint32_t n)
 	// to a multiple of PGSIZE.
 	//
 	// LAB 2: Your code here.
+	//cprintf("nextfree:%p\n", nextfree);
 	result = nextfree;
 	nextfree += ROUNDUP(n, PGSIZE);
 	return result;
@@ -131,7 +138,17 @@ mem_init(void)
 
 	//////////////////////////////////////////////////////////////////////
 	// create initial page directory.
+
 	kern_pgdir = (pde_t *) boot_alloc(PGSIZE);
+
+	//cprintf("kern_pgdir:%p\n", kern_pgdir);
+//	cprintf("&kern_pgdir:%p\n", &kern_pgdir);
+//	cprintf("pages:%p\n", pages);
+//	cprintf("&pages:%p\n", &pages);
+
+
+
+
 	memset(kern_pgdir, 0, PGSIZE);
 
 	//////////////////////////////////////////////////////////////////////
@@ -157,6 +174,13 @@ mem_init(void)
 	//////////////////////////////////////////////////////////////////////
 	// Make 'envs' point to an array of size 'NENV' of 'struct Env'.
 	// LAB 3: Your code here.
+	//记录错误，调了一上午
+	//struct Env *envs = (struct Env*) boot_alloc(NENV * sizeof(struct Env));
+	envs = (struct Env*) boot_alloc(NENV * sizeof(struct Env));
+	//cprintf("envs:%p\n", envs);
+	//cprintf("&envs:%p\n", &envs);
+	memset(envs, 0, NENV * sizeof(struct Env));
+	//cprintf("envs:%p\n", envs);
 
 	//////////////////////////////////////////////////////////////////////
 	// Now that we've allocated the initial kernel data structures, we set
@@ -189,6 +213,7 @@ mem_init(void)
 	//    - the new image at UENVS  -- kernel R, user R
 	//    - envs itself -- kernel RW, user NONE
 	// LAB 3: Your code here.
+	boot_map_region(kern_pgdir, (uintptr_t) UENVS, ROUNDUP(NENV * sizeof(struct Env), PGSIZE), PADDR(envs), PTE_U | PTE_P);
 
 	//////////////////////////////////////////////////////////////////////
 	// Use the physical memory that 'bootstack' refers to as the kernel
@@ -214,7 +239,10 @@ mem_init(void)
 	boot_map_region(kern_pgdir, (uintptr_t) KERNBASE, ROUNDUP(0xffffffff - KERNBASE, PGSIZE), 0, PTE_W | PTE_P);
 
 	// Check that the initial page directory has been set up correctly.
+	//cprintf("ta ma de, zenmegao1\n");
+	//cprintf("envs:%p\n", envs);
 	check_kern_pgdir();
+	//cprintf("ta ma de, zenmegao2\n");
 
 	// Switch from the minimal entry page directory to the full kern_pgdir
 	// page table we just created.	Our instruction pointer should be
@@ -737,24 +765,32 @@ check_kern_pgdir(void)
 
 	pgdir = kern_pgdir;
 
+	//cprintf("check_kern_pgdir()0 \n");
 	// check pages array
 	n = ROUNDUP(npages*sizeof(struct PageInfo), PGSIZE);
 	for (i = 0; i < n; i += PGSIZE)
 		assert(check_va2pa(pgdir, UPAGES + i) == PADDR(pages) + i);
+//	cprintf("check_kern_pgdir()1 \n");
 
 	// check envs array (new test for lab 3)
 	n = ROUNDUP(NENV*sizeof(struct Env), PGSIZE);
-	for (i = 0; i < n; i += PGSIZE)
+//	cprintf("%d\n", n);
+	for (i = 0; i < n; i += PGSIZE) {
 		assert(check_va2pa(pgdir, UENVS + i) == PADDR(envs) + i);
+		//cprintf("%d",(check_va2pa(pgdir, UENVS + i) == PADDR(envs) + i));
+	}
+	//cprintf("check_kern_pgdir()2 \n");
 
 	// check phys mem
 	for (i = 0; i < npages * PGSIZE; i += PGSIZE)
 		assert(check_va2pa(pgdir, KERNBASE + i) == i);
 
+	//cprintf("check_kern_pgdir()3 \n");
 	// check kernel stack
 	for (i = 0; i < KSTKSIZE; i += PGSIZE)
 		assert(check_va2pa(pgdir, KSTACKTOP - KSTKSIZE + i) == PADDR(bootstack) + i);
 	assert(check_va2pa(pgdir, KSTACKTOP - PTSIZE) == ~0);
+	//cprintf("check_kern_pgdir()4 \n");
 
 	// check PDE permissions
 	for (i = 0; i < NPDENTRIES; i++) {
@@ -786,7 +822,6 @@ static physaddr_t
 check_va2pa(pde_t *pgdir, uintptr_t va)
 {
 	pte_t *p;
-
 	pgdir = &pgdir[PDX(va)];
 	if (!(*pgdir & PTE_P))
 		return ~0;

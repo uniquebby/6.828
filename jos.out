@@ -1,5 +1,6 @@
-*** Now run 'make gdb'.
-***
++ ld obj/kern/kernel
+ld: warning: section `.bss' type changed to PROGBITS
++ mk obj/kern/kernel.img
 6828 decimal is 15254 octal!
 entering test_backtrace 5
 entering test_backtrace 4
@@ -8,22 +9,22 @@ entering test_backtrace 2
 entering test_backtrace 1
 entering test_backtrace 0
 Stack backtrace:
- ebp f0116f18  eip f01000a1  args 00000000 00000000 00000000 f010004a f011a068
- 	     kern/init.c:19: test_backtrace+97
- ebp f0116f38  eip f0100076  args 00000000 00000001 f0116f78 f010004a f011a068
- 	     kern/init.c:17: test_backtrace+54
- ebp f0116f58  eip f0100076  args 00000001 00000002 f0116f98 f010004a f011a068
- 	     kern/init.c:17: test_backtrace+54
- ebp f0116f78  eip f0100076  args 00000002 00000003 f0116fb8 f010004a f011a068
- 	     kern/init.c:17: test_backtrace+54
- ebp f0116f98  eip f0100076  args 00000003 00000004 00000000 f010004a f011a068
- 	     kern/init.c:17: test_backtrace+54
- ebp f0116fb8  eip f0100076  args 00000004 00000005 00000000 f010004a f011a068
- 	     kern/init.c:17: test_backtrace+54
- ebp f0116fd8  eip f01000f4  args 00000005 00001aac 00000660 00000000 00000000
- 	     kern/init.c:43: i386_init+78
- ebp f0116ff8  eip f010003e  args 00000003 00001003 00002003 00003003 00004003
- 	     kern/entry.S:83: <unknown>+0
+ ebp f0119f18  eip f01000a1  args 00000000 00000000 00000000 f010004a f018e0f4
+ 	     kern/init.c:22: test_backtrace+97
+ ebp f0119f38  eip f0100076  args 00000000 00000001 f0119f78 f010004a f018e0f4
+ 	     kern/init.c:20: test_backtrace+54
+ ebp f0119f58  eip f0100076  args 00000001 00000002 f0119f98 f010004a f018e0f4
+ 	     kern/init.c:20: test_backtrace+54
+ ebp f0119f78  eip f0100076  args 00000002 00000003 f0119fb8 f010004a f018e0f4
+ 	     kern/init.c:20: test_backtrace+54
+ ebp f0119f98  eip f0100076  args 00000003 00000004 00000000 f010004a f018e0f4
+ 	     kern/init.c:20: test_backtrace+54
+ ebp f0119fb8  eip f0100076  args 00000004 00000005 00000000 f010004a f018e0f4
+ 	     kern/init.c:20: test_backtrace+54
+ ebp f0119fd8  eip f01000f4  args 00000005 00001aac 00000f00 00000000 00000000
+ 	     kern/init.c:45: i386_init+78
+ ebp f0119ff8  eip f010003e  args 00000003 00001003 00002003 00003003 00004003
+ 	     kern/entry.S:84: <unknown>+0
 leaving test_backtrace 0
 leaving test_backtrace 1
 leaving test_backtrace 2
@@ -31,12 +32,7 @@ leaving test_backtrace 3
 leaving test_backtrace 4
 leaving test_backtrace 5
 Physical memory: 131072K available, base = 640K, extended = 130432K
-check_page_free_list() succeeded!
-check_page_alloc() succeeded!
-check_page() succeeded!
-check_kern_pgdir() succeeded!
-check_page_free_list() succeeded!
-check_page_installed_pgdir() succeeded!
+kernel panic at kern/pmap.c:144: PADDR called with invalid kva 00000000
 Welcome to the JOS kernel monitor!
 Type 'help' for a list of commands.
-qemu: terminating on signal 15 from pid 1794
+qemu: terminating on signal 15 from pid 3899
