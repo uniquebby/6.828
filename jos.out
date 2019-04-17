@@ -1,5 +1,4 @@
 + ld obj/kern/kernel
-ld: warning: section `.bss' type changed to PROGBITS
 + mk obj/kern/kernel.img
 6828 decimal is 15254 octal!
 entering test_backtrace 5
@@ -9,21 +8,21 @@ entering test_backtrace 2
 entering test_backtrace 1
 entering test_backtrace 0
 Stack backtrace:
- ebp f0119f18  eip f01000a1  args 00000000 00000000 00000000 f010004a f018e0f4
+ ebp f011af18  eip f01000a1  args 00000000 00000000 00000000 f010004a f018f0f4
  	     kern/init.c:22: test_backtrace+97
- ebp f0119f38  eip f0100076  args 00000000 00000001 f0119f78 f010004a f018e0f4
+ ebp f011af38  eip f0100076  args 00000000 00000001 f011af78 f010004a f018f0f4
  	     kern/init.c:20: test_backtrace+54
- ebp f0119f58  eip f0100076  args 00000001 00000002 f0119f98 f010004a f018e0f4
+ ebp f011af58  eip f0100076  args 00000001 00000002 f011af98 f010004a f018f0f4
  	     kern/init.c:20: test_backtrace+54
- ebp f0119f78  eip f0100076  args 00000002 00000003 f0119fb8 f010004a f018e0f4
+ ebp f011af78  eip f0100076  args 00000002 00000003 f011afb8 f010004a f018f0f4
  	     kern/init.c:20: test_backtrace+54
- ebp f0119f98  eip f0100076  args 00000003 00000004 00000000 f010004a f018e0f4
+ ebp f011af98  eip f0100076  args 00000003 00000004 00000000 f010004a f018f0f4
  	     kern/init.c:20: test_backtrace+54
- ebp f0119fb8  eip f0100076  args 00000004 00000005 00000000 f010004a f018e0f4
+ ebp f011afb8  eip f0100076  args 00000004 00000005 00000000 f010004a f018f0f4
  	     kern/init.c:20: test_backtrace+54
- ebp f0119fd8  eip f01000f4  args 00000005 00001aac 00000f00 00000000 00000000
+ ebp f011afd8  eip f01000f4  args 00000005 00001aac 00000f00 00000000 00000000
  	     kern/init.c:45: i386_init+78
- ebp f0119ff8  eip f010003e  args 00000003 00001003 00002003 00003003 00004003
+ ebp f011aff8  eip f010003e  args 00000003 00001003 00002003 00003003 00004003
  	     kern/entry.S:84: <unknown>+0
 leaving test_backtrace 0
 leaving test_backtrace 1
@@ -32,7 +31,34 @@ leaving test_backtrace 3
 leaving test_backtrace 4
 leaving test_backtrace 5
 Physical memory: 131072K available, base = 640K, extended = 130432K
-kernel panic at kern/pmap.c:144: PADDR called with invalid kva 00000000
+check_page_free_list() succeeded!
+check_page_alloc() succeeded!
+check_page() succeeded!
+check_kern_pgdir() succeeded!
+check_page_free_list() succeeded!
+check_page_installed_pgdir() succeeded!
+[00000000] new env 00001000
+Incoming TRAP frame at 0xefffffbc
+TRAP frame at 0xf01d2000
+  edi  0x00000000
+  esi  0x00000000
+  ebp  0xeebfdfb0
+  oesp 0xefffffdc
+  ebx  0x00000000
+  edx  0xf010000c
+  ecx  0x00000064
+  eax  0x00000000
+  es   0x----0023
+  ds   0x----0023
+  trap 0x0000000d General Protection
+  err  0x00000182
+  eip  0x008000dc
+  cs   0x----001b
+  flag 0x00000012
+  esp  0xeebfdfa4
+  ss   0x----0023
+[00001000] free env 00001000
+Destroyed the only environment - nothing more to do!
 Welcome to the JOS kernel monitor!
 Type 'help' for a list of commands.
-qemu: terminating on signal 15 from pid 3899
+qemu: terminating on signal 15 from pid 11352

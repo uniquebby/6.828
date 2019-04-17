@@ -486,6 +486,7 @@ __monitor_start	gradelib.py	/^    def __monitor_start(self, output):$/;"	m	class
 __react	gradelib.py	/^    def __react(self, reactors, timeout):$/;"	m	class:Runner	file:
 __send	gradelib.py	/^    def __send(self, cmd):$/;"	m	class:GDBClient	file:
 __send_break	gradelib.py	/^    def __send_break(self):$/;"	m	class:GDBClient	file:
+_alltraps	kern/trapentry.S	/^_alltraps:$/;"	l
 _kaddr	kern/pmap.h	/^_kaddr(const char *file, int line, physaddr_t pa)$/;"	f	typeref:typename:void *
 _paddr	kern/pmap.h	/^_paddr(const char *file, int line, void *kva)$/;"	f	typeref:typename:physaddr_t
 _panic	kern/init.c	/^_panic(const char *file, int line, const char *fmt,...)$/;"	f	typeref:typename:void
