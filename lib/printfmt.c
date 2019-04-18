@@ -54,7 +54,7 @@ printnum(void (*putch)(int, void*), void *putdat,
 // Get an unsigned int of various possible sizes from a varargs list,
 // depending on the lflag parameter.
 static unsigned long long
-getuint(va_list *ap, int lflag)
+getuint(va_list *ap, int lflag)//ap = arg pointer
 {
 	if (lflag >= 2)
 		return va_arg(*ap, unsigned long long);
@@ -99,8 +99,8 @@ vprintfmt(void (*putch)(int, void*), void *putdat, const char *fmt, va_list ap)
 
 		// Process a %-escape sequence
 		padc = ' ';
-		width = -1;
-		precision = -1;
+		width = -1;//总宽度
+		precision = -1;//精度
 		lflag = 0;
 		altflag = 0;
 	reswitch:
@@ -126,7 +126,7 @@ vprintfmt(void (*putch)(int, void*), void *putdat, const char *fmt, va_list ap)
 		case '7':
 		case '8':
 		case '9':
-			for (precision = 0; ; ++fmt) {
+			for (precision = 0; ; ++fmt) {//依次读取数据宽度
 				precision = precision * 10 + ch - '0';
 				ch = *fmt;
 				if (ch < '0' || ch > '9')
@@ -208,10 +208,9 @@ vprintfmt(void (*putch)(int, void*), void *putdat, const char *fmt, va_list ap)
 		// (unsigned) octal
 		case 'o':
 			// Replace this with your code.
-			putch('X', putdat);
-			putch('X', putdat);
-			putch('X', putdat);
-			break;
+			num = getuint(&ap, lflag);	
+			base = 8;
+			goto number;
 
 		// pointer
 		case 'p':
