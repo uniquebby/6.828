@@ -18,7 +18,7 @@ static size_t npages_basemem;	// Amount of base memory (in pages)
 // These variables are set in mem_init()
 pde_t *kern_pgdir;		// Kernel's initial page directory
 struct PageInfo *pages;		// Physical page state array
-static struct PageInfo *page_free_list;	// Free list of physical pages
+static struct PageInfo *page_free_list ;	// Free list of physical 
 
 
 // --------------------------------------------------------------
@@ -102,7 +102,7 @@ boot_alloc(uint32_t n)
 		//cprintf("end+16:%p\n", end+16);
 		//cprintf("edata:%p\n", edata);
 		//加16是因为.bss段的实际长度比end多出16个字节，原因未知。
-		nextfree = ROUNDUP((char *) end + 16, PGSIZE);		
+		nextfree = ROUNDUP((char *) end, PGSIZE);		
 		//cprintf("nextfree:%p\n", nextfree);
 	}
 
@@ -324,9 +324,16 @@ page_init(void)
 	pages[0].pp_ref = 1;
 	//  2) The rest of base memory, [PGSIZE, npages_basemem * PGSIZE)
 	//     is free.
+	cprintf("page_init &page_free_list:%p\n", &page_free_list);
+	cprintf("page_init page_free_list:%p\n", page_free_list);
     for (i = 1; i < npages_basemem; i++) {
+		if (i == ROUNDDOWN(MPENTRY_PADDR/PGSIZE, PGSIZE)) {
+			 pages[i].pp_ref = 1;
+			 continue;
+		}
         pages[i].pp_ref = 0;
         pages[i].pp_link = page_free_list;
+//		cprintf("page_init:%p\n", page_free_list);
         page_free_list = &pages[i];
     }
 	//  3) Then comes the IO hole [IOPHYSMEM, EXTPHYSMEM), which must
@@ -626,7 +633,15 @@ mmio_map_region(physaddr_t pa, size_t size)
 	// Hint: The staff solution uses boot_map_region.
 	//
 	// Your code here:
-	panic("mmio_map_region not implemented");
+    size_t rounded_size = ROUNDUP(size, PGSIZE);
+
+    if (base + rounded_size > MMIOLIM) panic("memory overflow ");
+    boot_map_region(kern_pgdir, base, rounded_size, pa, PTE_W|PTE_PCD|PTE_PWT);
+    uintptr_t return_base = base;
+    base += rounded_size;
+    return (void *)return_base;
+
+//	panic("mmio_map_region not implemented");
 }
 
 static uintptr_t user_mem_check_addr;
@@ -692,21 +707,27 @@ check_page_free_list(bool only_low_memory)
 
 	if (!page_free_list)
 		panic("'page_free_list' is a null pointer!");
+	cprintf("%d\n",only_low_memory);
 
 	if (only_low_memory) {
 		// Move pages with lower addresses first in the free
 		// list, since entry_pgdir does not map all pages.
 		struct PageInfo *pp1, *pp2;
 		struct PageInfo **tp[2] = { &pp1, &pp2 };
+//		cprintf("714\n");
+		int pagetype = 0;
 		for (pp = page_free_list; pp; pp = pp->pp_link) {
-			int pagetype = PDX(page2pa(pp)) >= pdx_limit;
+//			cprintf("%p\n",pp);
+			pagetype = (PDX(page2pa(pp)) >= pdx_limit);
 			*tp[pagetype] = pp;
 			tp[pagetype] = &pp->pp_link;
 		}
+			cprintf("end%d",pagetype);
 		*tp[1] = 0;
 		*tp[0] = pp2;
 		page_free_list = pp1;
 	}
+
 
 	// if there's a page that shouldn't be on the free list,
 	// try to make sure it eventually causes trouble.
