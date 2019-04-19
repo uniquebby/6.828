@@ -8050,7 +8050,6 @@ trap_dispatch	kern/trap.c	/^trap_dispatch(struct Trapframe *tf)$/;"	f	typeref:ty
 trap_init	kern/trap.c	/^trap_init(void)$/;"	f	typeref:typename:void
 trap_init_percpu	kern/trap.c	/^trap_init_percpu(void)$/;"	f	typeref:typename:void
 trapname	kern/trap.c	/^static const char *trapname(int trapno)$/;"	f	typeref:typename:const char *	file:
-ts	kern/trap.c	/^static struct Taskstate ts;$/;"	v	typeref:struct:Taskstate	file:
 ts_cr3	inc/mmu.h	/^	physaddr_t ts_cr3;	\/\/ Page directory base$/;"	m	struct:Taskstate	typeref:typename:physaddr_t
 ts_cs	inc/mmu.h	/^	uint16_t ts_cs;$/;"	m	struct:Taskstate	typeref:typename:uint16_t
 ts_ds	inc/mmu.h	/^	uint16_t ts_ds;$/;"	m	struct:Taskstate	typeref:typename:uint16_t

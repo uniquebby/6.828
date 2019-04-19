@@ -293,6 +293,11 @@ mem_init_mp(void)
 	//     Permissions: kernel RW, user NONE
 	//
 	// LAB 4: Your code here:
+    uintptr_t start_addr = KSTACKTOP - KSTKSIZE;    
+    for (size_t i = 0; i < NCPU; i++) {
+        boot_map_region(kern_pgdir, (uintptr_t) start_addr, KSTKSIZE, PADDR(percpu_kstacks[i]), PTE_W | PTE_P);
+        start_addr -= KSTKSIZE + KSTKGAP;
+    }	
 
 }
 
@@ -324,11 +329,11 @@ page_init(void)
 	pages[0].pp_ref = 1;
 	//  2) The rest of base memory, [PGSIZE, npages_basemem * PGSIZE)
 	//     is free.
-	
+	size_t mp_page = MPENTRY_PADDR/PGSIZE;	
     for (i = 1; i < npages_basemem; i++) {
 //		记录错误
 //		if (i == ROUNDDOWN(MPENTRY_PADDR/PGSIZE, PGSIZE)) {
-		if (i == MPENTRY_PADDR/PGSIZE) {
+		if (i == mp_page) {
 			 pages[i].pp_ref = 1;
 			 continue;
 		}
@@ -886,10 +891,6 @@ check_kern_pgdir(void)
 		for (i = 0; i < KSTKGAP; i += PGSIZE)
 			assert(check_va2pa(pgdir, base + i) == ~0);
 	}
-	for (i = 0; i < KSTKSIZE; i += PGSIZE)
-		assert(check_va2pa(pgdir, KSTACKTOP - KSTKSIZE + i) == PADDR(bootstack) + i);
-	assert(check_va2pa(pgdir, KSTACKTOP - PTSIZE) == ~0);
-	//cprintf("check_kern_pgdir()4 \n");
 
 	// check PDE permissions
 	for (i = 0; i < NPDENTRIES; i++) {
