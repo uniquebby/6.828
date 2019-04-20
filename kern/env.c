@@ -119,8 +119,12 @@ env_init(void)
 {
 	// Set up envs array
 	// LAB 3: Your code here.
-	for (int i = NENV-1;i >= 0;i--) {
+	int i;
+	env_free_list = NULL;
+
+	for (i = NENV - 1; i >= 0; i--) {
 		envs[i].env_id = 0;
+		envs[i].env_status = ENV_FREE;
 		envs[i].env_link = env_free_list;
 		env_free_list = &envs[i];
 	}
@@ -188,10 +192,16 @@ env_setup_vm(struct Env *e)
 
 	// LAB 3: Your code here.
 	e->env_pgdir = page2kva(p);	
-	memcpy(e->env_pgdir, kern_pgdir, PGSIZE);
 	p->pp_ref++;
+	//Map the directory below UTOP.
+	for(i = 0; i < PDX(UTOP); i++) {
+		e->env_pgdir[i] = 0;
+	}
 
-
+	//Map the directory above UTOP
+	for(i = PDX(UTOP); i < NPDENTRIES; i++) {
+		e->env_pgdir[i] = kern_pgdir[i];
+	}
 
 	// UVPT maps the env's own page table read-only.
 	// Permissions: kernel R, user R
@@ -378,6 +388,7 @@ load_icode(struct Env *e, uint8_t *binary)
 		}
 	}
 	e->env_tf.tf_eip = elf->e_entry;
+//	cprintf("e_entry:%p\n", elf->e_entry);
 
 	// Now map one page for the program's initial stack
 	// at virtual address USTACKTOP - PGSIZE.
@@ -403,7 +414,9 @@ env_create(uint8_t *binary, enum EnvType type)
 	if (r < 0) {
 		 panic("env_create: %e", r);
 	}
+//	cprintf("new_env:%p\n",e);
 	e->env_type = type;
+//	cprintf("binary:%p\n", binary);
 	load_icode(e, binary);
 }
 
@@ -542,9 +555,11 @@ env_run(struct Env *e)
 		 e->env_status = ENV_RUNNING;
 		 e->env_runs++ ;
 		 lcr3(PADDR(e->env_pgdir));
-
-		 env_pop_tf(&e->env_tf);
 		 unlock_kernel();
+//		 cprintf("tf:%p\n", &e->env_tf);
+//		 cprintf("esp:%p\n", e->env_tf.tf_esp);
+//		 cprintf("pgdir:%p\n", e->env_pgdir);
+		 env_pop_tf(&e->env_tf);
 		 
 	
 

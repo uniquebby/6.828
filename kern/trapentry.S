@@ -47,7 +47,44 @@
 /*
  * Lab 3: Your code here for generating entry points for the different traps.
  */
+TRAPHANDLER_NOEC(traphandler0, T_DIVIDE)
+TRAPHANDLER_NOEC(traphandler1, T_DEBUG)
+TRAPHANDLER_NOEC(traphandler2, T_NMI)
+TRAPHANDLER_NOEC(traphandler3, T_BRKPT)
+TRAPHANDLER_NOEC(traphandler4, T_OFLOW)
+TRAPHANDLER_NOEC(traphandler5, T_BOUND)
+TRAPHANDLER_NOEC(traphandler6, T_ILLOP)
+TRAPHANDLER_NOEC(traphandler7, T_DEVICE)
+TRAPHANDLER(traphandler8, T_DBLFLT)
+// 9 deprecated since 386
+TRAPHANDLER(traphandler10, T_TSS)
+TRAPHANDLER(traphandler11, T_SEGNP)
+TRAPHANDLER(traphandler12, T_STACK)
+TRAPHANDLER(traphandler13, T_GPFLT)
+TRAPHANDLER(traphandler14, T_PGFLT)
+// 15 reserved by intel
+TRAPHANDLER_NOEC(traphandler16, T_FPERR)
+TRAPHANDLER(traphandler17, T_ALIGN)
+TRAPHANDLER_NOEC(traphandler18, T_MCHK)
+TRAPHANDLER_NOEC(traphandler19, T_SIMDERR)
 
+// system call (interrupt)
+TRAPHANDLER_NOEC(traphandler48, T_SYSCALL)
+TRAPHANDLER_NOEC(traphandler500, T_DEFAULT)	
+
+/*
+ * Lab 3: Your code here for _alltraps
+ */
+_alltraps:
+	pushl %ds	
+	pushl %es	
+	pushal
+	
+	movw $GD_KD, %ax
+	movw %ax, %ds
+	movw %ax, %es
+	pushl %esp
+	call trap
 
 
 /*

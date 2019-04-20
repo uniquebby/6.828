@@ -95,6 +95,7 @@ boot_alloc(uint32_t n)
 	// which points to the end of the kernel's bss segment:
 	// the first virtual address that the linker did *not* assign
 	// to any kernel code or global variables.
+	cprintf("nextfree:%p\n", nextfree);
 	if (!nextfree) {
 		extern char end[];
 		//extern char edata[];
@@ -293,8 +294,9 @@ mem_init_mp(void)
 	//     Permissions: kernel RW, user NONE
 	//
 	// LAB 4: Your code here:
+	int i = 0;
     uintptr_t start_addr = KSTACKTOP - KSTKSIZE;    
-    for (size_t i = 0; i < NCPU; i++) {
+    for (i = 0; i < NCPU; i++) {
         boot_map_region(kern_pgdir, (uintptr_t) start_addr, KSTKSIZE, PADDR(percpu_kstacks[i]), PTE_W | PTE_P);
         start_addr -= KSTKSIZE + KSTKGAP;
     }	
@@ -339,7 +341,7 @@ page_init(void)
 		}
         pages[i].pp_ref = 0;
         pages[i].pp_link = page_free_list;
-		cprintf("page_init:%p\n", page_free_list);
+//		cprintf("page_init:%p\n", page_free_list);
         page_free_list = &pages[i];
     }
 	//  3) Then comes the IO hole [IOPHYSMEM, EXTPHYSMEM), which must
@@ -641,7 +643,7 @@ mmio_map_region(physaddr_t pa, size_t size)
 	// Your code here:
     size_t rounded_size = ROUNDUP(size, PGSIZE);
 
-    if (base + rounded_size > MMIOLIM) panic("memory overflow ");
+    if (base + rounded_size > MMIOLIM || base + rounded_size < base) panic("memory overflow\n ");
     boot_map_region(kern_pgdir, base, rounded_size, pa, PTE_W|PTE_PCD|PTE_PWT);
     uintptr_t return_base = base;
     base += rounded_size;

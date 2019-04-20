@@ -43,6 +43,7 @@ unlock_kernel(void)
 	// pause, this CPU is likely to reacquire the lock before
 	// another CPU has even been given a chance to acquire it.
 	asm volatile("pause");
+
 }
 
 #endif
