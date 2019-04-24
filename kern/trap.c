@@ -93,9 +93,7 @@ trap_init(void)
     void traphandler18();
     void traphandler19();
     void traphandler48();
-    void traphandler500();
-
-    SETGATE(idt[T_DIVIDE], 1, GD_KT, traphandler0, 0);
+    void traphandler500(); SETGATE(idt[T_DIVIDE], 1, GD_KT, traphandler0, 0);
     SETGATE(idt[T_DEBUG], 1, GD_KT, traphandler1, 0);
     SETGATE(idt[T_NMI], 1, GD_KT, traphandler2, 0);
     SETGATE(idt[T_BRKPT], 1, GD_KT, traphandler3, 3);
