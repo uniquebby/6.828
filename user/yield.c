@@ -5,7 +5,7 @@
 void
 umain(int argc, char **argv)
 {
-	int i;
+	int i = 0;
 
 	cprintf("Hello, I am environment %08x.\n", thisenv->env_id);
 	for (i = 0; i < 5; i++) {

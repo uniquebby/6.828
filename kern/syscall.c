@@ -11,6 +11,7 @@
 #include <kern/syscall.h>
 #include <kern/console.h>
 #include <kern/sched.h>
+//ipc_send
 
 // Print a string to the system console.
 // The string is exactly 'len' characters long.
@@ -143,9 +144,10 @@ sys_env_set_pgfault_upcall(envid_t envid, void *func)
 	}
 	assert(func != NULL);
 	e->env_pgfault_upcall = func;
+	user_mem_assert(e, func, 4, 0);
 	return 0;
 	
-	
+//page_fault_handler	
 //	panic("sys_env_set_pgfault_upcall not implemented");
 }
 
@@ -323,7 +325,49 @@ static int
 sys_ipc_try_send(envid_t envid, uint32_t value, void *srcva, unsigned perm)
 {
 	// LAB 4: Your code here.
-	panic("sys_ipc_try_send not implemented");
+	struct Env* recv = NULL;
+	int error_code = 0;
+	if((error_code = envid2env(envid, &recv, 0)) < 0)
+		return error_code;
+	if(!recv->env_ipc_recving)
+		return -E_IPC_NOT_RECV;
+	recv->env_ipc_perm = 0;
+	recv->env_ipc_from = curenv->env_id;
+	recv->env_ipc_value = value;
+	// when to do the following check
+	if((uintptr_t)srcva < UTOP && (uintptr_t)(recv->env_ipc_dstva) < UTOP)
+	{
+		if((uintptr_t)srcva != ROUNDDOWN((uintptr_t)srcva, PGSIZE))
+			return -E_INVAL;
+		// check perm, is PTE_U and PTE_P already set?
+		if(((perm & PTE_U) == 0) || ((perm & PTE_P) == 0) )
+			return -E_INVAL;
+		// is perm set with other perms that should never be set?
+		// bit-and ~PTE_SYSCALL clear the four bits
+		if((perm & ~PTE_SYSCALL) != 0)
+			return -E_INVAL;
+		pte_t* pte_addr = NULL;
+		struct PageInfo* page = NULL;
+		page = page_lookup(curenv->env_pgdir, srcva, &pte_addr);
+		// srcva is not mapped
+		if(page == NULL)
+			return -E_INVAL;
+		// the page is read-only, but perm contains write
+		if((perm & PTE_W) && !((*pte_addr) & PTE_W))
+			return -E_INVAL;
+		// Now start to do the real stuff
+		if((error_code = page_insert(recv->env_pgdir, page, recv->env_ipc_dstva, perm)) < 0)
+			return error_code;
+		recv->env_ipc_perm = perm;
+	}
+	// unblock and make it running
+	recv->env_ipc_recving = 0;
+	recv->env_tf.tf_regs.reg_eax = 0;
+	recv->env_status = ENV_RUNNABLE;
+	return 0;
+		
+	
+//	panic("sys_ipc_try_send not implemented");
 }
 
 // Block until a value is ready.  Record that you want to receive
@@ -341,7 +385,19 @@ static int
 sys_ipc_recv(void *dstva)
 {
 	// LAB 4: Your code here.
-	panic("sys_ipc_recv not implemented");
+
+	if ((uintptr_t)dstva < UTOP ) {
+		 if (PGOFF(dstva) != 0)
+			return -E_INVAL;
+		
+		 curenv->env_ipc_dstva =dstva;
+	}	
+
+	curenv->env_ipc_recving = 1;
+	curenv->env_status = ENV_NOT_RUNNABLE;
+	sched_yield();
+	
+//	panic("sys_ipc_recv not implemented");
 	return 0;
 }
 
@@ -377,7 +433,7 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
    		     break;
 		 case SYS_env_set_pgfault_upcall:
             ret = sys_env_set_pgfault_upcall(a1, (void *)a2);
-			break:
+			break;
   		 case SYS_page_alloc:
        	    ret = sys_page_alloc(a1,(void *)a2, (int)a3);
        	    break;
@@ -387,6 +443,12 @@ syscall(uint32_t syscallno, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, 
     	 case SYS_page_unmap:
             ret = sys_page_unmap(a1, (void *)a2);
        	    break;
+		 case SYS_ipc_try_send:
+			ret = sys_ipc_try_send(a1, a2, (void *)a3, a4);
+			break;
+		 case SYS_ipc_recv:
+			ret = sys_ipc_recv((void *) a1);
+			break;
 		 default:
 			return -E_INVAL;
 

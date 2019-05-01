@@ -1,5 +1,3 @@
-/* See COPYRIGHT for copyright information. */
-
 #include <inc/x86.h>
 #include <inc/mmu.h>
 #include <inc/error.h>
@@ -14,7 +12,7 @@
 #include <kern/sched.h>
 #include <kern/cpu.h>
 #include <kern/spinlock.h>
-
+//sched_halt
 struct Env *envs = NULL;		// All environments
 static struct Env *env_free_list;	// Free environment list
 					// (linked by Env->env_link)
@@ -267,6 +265,7 @@ env_alloc(struct Env **newenv_store, envid_t parent_id)
 
 	// Enable interrupts while in user mode.
 	// LAB 4: Your code here.
+	e->env_tf.tf_eflags |= FL_IF;
 
 	// Clear the page fault handler until user installs one.
 	e->env_pgfault_upcall = 0;
@@ -373,7 +372,7 @@ load_icode(struct Env *e, uint8_t *binary)
 	if (elf->e_magic != ELF_MAGIC) {
 		 panic("load_icode: not an Elf file");
 	}
-	ph = (struct Proghdr *) (binary + elf->e_phoff);
+	ph = (struct Proghdr *) ((uint8_t *)elf + elf->e_phoff);
 	eph = ph + elf->e_phnum;
 
 	lcr3(PADDR(e->env_pgdir));
@@ -555,10 +554,12 @@ env_run(struct Env *e)
 		 e->env_status = ENV_RUNNING;
 		 e->env_runs++ ;
 		 lcr3(PADDR(e->env_pgdir));
-		 unlock_kernel();
-//		 cprintf("tf:%p\n", &e->env_tf);
 //		 cprintf("esp:%p\n", e->env_tf.tf_esp);
+//		 cprintf("kern_env.env_run:eip:%p\n", e->env_tf.tf_eip);
 //		 cprintf("pgdir:%p\n", e->env_pgdir);
+		 //bug 记录，调了一天半，这个bug原因是trapentry.S中对时钟中断的初始化用了TRAPHANDER而不是TRAPHANLDER_NOEC导致异常栈数据格式不对。
+//		 if (kernel_lock.cpu) 
+         unlock_kernel();
 		 env_pop_tf(&e->env_tf);
 		 
 	

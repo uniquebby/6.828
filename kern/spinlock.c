@@ -83,6 +83,7 @@ void
 spin_unlock(struct spinlock *lk)
 {
 #ifdef DEBUG_SPINLOCK
+//	cprintf("kern_lock_cpu:%p--------------------------------------------------\n", lk->cpu);
 	if (!holding(lk)) {
 		int i;
 		uint32_t pcs[10];

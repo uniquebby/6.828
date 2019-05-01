@@ -5,7 +5,6 @@
 #include <inc/lib.h>
 
 envid_t dumbfork(void);
-
 void
 umain(int argc, char **argv)
 {

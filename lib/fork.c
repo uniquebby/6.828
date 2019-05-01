@@ -70,23 +70,39 @@ duppage(envid_t envid, unsigned pn)
 	int r;
 
 	// LAB 4: Your code here.
-	envid_t p_eid = sys_getenvid();
-	pte_t pte = uvpt[pn];
-	int perm = PTE_U|PTE_P;
-	void *va = (void *)(pn * PGSIZE);
+//	envid_t p_eid = sys_getenvid();
+//	pte_t pte = uvpt[pn];
+//	int perm = PTE_U|PTE_P;
+//	void *va = (void *)(pn * PGSIZE);
 
-	if (pte & PTE_W || pte & PTE_COW)
-		perm |= PTE_COW;
+//	if (pte & PTE_W || pte & PTE_COW)
+//		perm |= PTE_COW;
 	
-	perm &= PTE_SYSCALL;
-	if ((r = sys_page_map(p_eid, va, envid, va, perm)) < 0)
-		return r;
+//	perm &= PTE_SYSCALL;
+//	if ((r = sys_page_map(p_eid, va, envid, va, perm)) < 0)
+//		return r;
 	
-	if (perm & PTE_COW) {
-		if ((r = sys_page_map(p_eid, va, p_eid, va, perm)) < 0)
-			return r; 
-	}
+//	if (perm & PTE_COW) {
+//		if ((r = sys_page_map(p_eid, va, p_eid, va, perm)) < 0)
+//			return r; 
+//	}
 
+	envid_t this_env_id = sys_getenvid();
+    void * va = (void *)(pn * PGSIZE);
+
+    int perm = uvpt[pn] & 0xFFF;
+    if ( (perm & PTE_W) || (perm & PTE_COW) ) {
+        // marked as COW and read-only
+        perm |= PTE_COW;
+        perm &= ~PTE_W;
+    }
+    // IMPORTANT: adjust permission to the syscall
+    perm &= PTE_SYSCALL;
+    // cprintf("fromenvid = %x, toenvid = %x, dup page %d, addr = %08p, perm = %03x\n",this_env_id, envid, pn, va, perm);
+    if((r = sys_page_map(this_env_id, va, envid, va, perm)) < 0)
+        panic("duppage: %e",r);
+    if((r = sys_page_map(this_env_id, va, this_env_id, va, perm)) < 0)
+        panic("duppage: %e",r);
 //	panic("duppage not implemented");
 	return 0;
 }
